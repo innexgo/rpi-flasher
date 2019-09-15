@@ -6,6 +6,7 @@ import time
 import json
 import datetime
 import requests
+import readline
 import threading
 
 def isPi():
@@ -35,6 +36,7 @@ def setInterval(func, sec):
     t.start()
     return t
 
+# Attempts to associate card
 def associateCard(cardId, studentId):
         # There's not a class at the moment
         newCardRequest = requests.get(f'{protocol}://{hostname}/card/new/',
@@ -50,19 +52,16 @@ def associateCard(cardId, studentId):
             print(newCardRequest.content)
 
 # Load the config file
-with open('innexgo-client.json') as configfile:
+with open('innexgo-flasher.json') as configfile:
     config = json.load(configfile)
 
     hostname = config['hostname']
     protocol = config['protocol']
     apiKey = config['apiKey']
 
-    if apiKey is None or hostname is None or locationId is None:
+    if hostname is None or protocol is None or apiKey is None:
         print('error reading the json')
         sys.exit()
-
-    setInterval(updateInfoInfrequent, 1);
-
 
     if isPi():
         try:
@@ -76,8 +75,9 @@ with open('innexgo-client.json') as configfile:
                     if uidstatus == reader.MI_OK:
                         # Convert uid to int
                         cardId = int(bytes(uid).hex(), 16)
-                        print(f'logged {cardId}')
-                        sendEncounterWithCard(cardId)
+                        print(f'detected {cardId}')
+                        studentId = int(input())
+                        sendEncounterWithCard(cardId, studentId)
                     time.sleep(0.5)
         except KeyboardInterrupt:
             RPi.GPIO.cleanup()

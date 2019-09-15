@@ -10,12 +10,14 @@ import readline
 import threading
 
 def isPi():
-    return sys.implementation._multiarch is 'arm-linux-gnueabihf'
+    return sys.implementation._multiarch == 'arm-linux-gnueabihf'
 
 # if raspberry pi
 if isPi():
     import RPi.GPIO
     import mfrc522
+else:
+    print('false')
 
 apiKey = None
 protocol = None
@@ -38,18 +40,20 @@ def setInterval(func, sec):
 
 # Attempts to associate card
 def associateCard(cardId, studentId):
-        # There's not a class at the moment
-        newCardRequest = requests.get(f'{protocol}://{hostname}/card/new/',
-                                        params={'apiKey':apiKey,
-                                                'studentId':studentId,
-                                                'cardId':cardId})
-        if newCardRequest.ok:
-            print('Successfully associated card!')
-            card = newCardRequest.json()
-            print(encounter)
-        else:
-            print('attempt failed:')
-            print(newCardRequest.content)
+        try:
+            # There's not a class at the moment
+            newCardRequest = requests.get(f'{protocol}://{hostname}/card/new/',
+                                params={'apiKey':apiKey,
+                                        'studentId':studentId,
+                                        'cardId':cardId})
+            if newCardRequest.ok:
+                print('Successfully associated card!')
+                card = newCardRequest.json()
+            else:
+                print(f'attempt failed: {newCardRequest.status_code}')
+                print(newCardRequest.content)
+        except requests.exceptions.RequestException:
+            print(f'Failed to connect to {protocol}://{hostname}')
 
 # Load the config file
 with open('innexgo-flasher.json') as configfile:
@@ -66,6 +70,7 @@ with open('innexgo-flasher.json') as configfile:
     if isPi():
         try:
             reader = mfrc522.MFRC522()
+            print('Please touch card...')
             while True:
                 (detectstatus, tagtype) = reader.MFRC522_Request(reader.PICC_REQIDL)
                 if detectstatus == reader.MI_OK:
@@ -75,9 +80,15 @@ with open('innexgo-flasher.json') as configfile:
                     if uidstatus == reader.MI_OK:
                         # Convert uid to int
                         cardId = int(bytes(uid).hex(), 16)
-                        print(f'detected {cardId}')
-                        studentId = int(input())
-                        sendEncounterWithCard(cardId, studentId)
-                    time.sleep(0.5)
+                        print(f'detected card with id {cardId}')
+                        print('input student id')
+                        try:
+                            studentId = int(input())
+                            associateCard(cardId, studentId)
+                        except ValueError:
+                            print('Not a valid student id. Failed to associate id')
+                        print('Please touch card...')
+                        time.sleep(0.5)
+
         except KeyboardInterrupt:
             RPi.GPIO.cleanup()

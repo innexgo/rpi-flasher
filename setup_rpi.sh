@@ -16,7 +16,7 @@ mount "${DRIVE}1" mnt
 touch mnt/ssh
 
 # Copy files into the boot
-cp innexgo-client.json mnt/
+cp innexgo-flasher.json mnt/
 cp wpa_supplicant.conf mnt/
 
 umount mnt

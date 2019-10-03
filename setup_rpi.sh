@@ -1,12 +1,16 @@
 #!/bin/bash
 
-
 # This file to be run on host to set up raspberry pi
 set -e
 
 if [[ $# -ne 1 ]]; then
     echo "Illegal number of parameters, need 1 drive"
     exit 2
+fi
+
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root"
+   exit 1
 fi
 
 DRIVE=$1
@@ -23,6 +27,11 @@ umount mnt
 rmdir mnt
 
 # Mount ext4 part on the mount directory
-#mount "${DRIVE}2" mnt
+mount "${DRIVE}2" mnt
 
+# clone to here
+git clone https://github.com/innexgo/rpi-client mnt/home/pi/rpi-client
 
+umount mnt
+
+rmdir mnt

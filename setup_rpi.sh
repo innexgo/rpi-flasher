@@ -18,11 +18,11 @@ DRIVE=$1
 mkdir -p mnt
 mount "${DRIVE}1" mnt
 touch mnt/ssh
+echo "dtparam=spi=on" >> mnt/config.txt
 
 # Copy files into the boot
 cp innexgo-flasher.json mnt/
 cp wpa_supplicant.conf mnt/
-
 umount mnt
 rmdir mnt
 
@@ -30,7 +30,8 @@ rmdir mnt
 mount "${DRIVE}2" mnt
 
 # clone to here
-git clone https://github.com/innexgo/rpi-client mnt/home/pi/rpi-client
+git clone https://github.com/innexgo/rpi-flasher mnt/home/pi/rpi-flasher
+chown -R pi:pi mnt/home/pi/rpi-flasher
 
 umount mnt
 

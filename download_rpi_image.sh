@@ -1,3 +1,3 @@
 #!/bin/sh
 
-wget https://downloads.raspberrypi.org/raspbian_lite_latest
+wget -P /tmp/ https://downloads.raspberrypi.org/raspbian_lite_latest

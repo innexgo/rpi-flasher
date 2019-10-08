@@ -114,31 +114,37 @@ with open('innexgo-flasher.json') as configfile:
                     # First grab student id
                     print('Please enter student ID...')
                     studentId = int(input())
-                    print('Please touch card...')
-                    (detectstatus, tagtype) = reader.MFRC522_Request(reader.PICC_REQIDL)
-                    if detectstatus == reader.MI_OK:
-                        (uidstatus, uid) = reader.MFRC522_Anticoll()
-                        # TODO add dings
-                        if uidstatus == reader.MI_OK:
-                            # Convert uid to int
-                            cardId = int(bytes(uid).hex(), 16)
-                            print(f'detected card with id {cardId}')
-                            associateCard(cardId, studentId)
+                    print('\nPlease touch card...')
+                    while True:
+                        (detectstatus, tagtype) = reader.MFRC522_Request(reader.PICC_REQIDL)
+                        if detectstatus == reader.MI_OK:
+                            (uidstatus, uid) = reader.MFRC522_Anticoll()
+                            # TODO add dings
+                            if uidstatus == reader.MI_OK:
+                                # Convert uid to int
+                                cardId = int(bytes(uid).hex(), 16)
+                                print(f'detected card with id {cardId}')
+                                associateCard(cardId, studentId)
+    
+                                # Select the scanned tag
+                                reader.MFRC522_SelectTag(uid)
+                                # Authenticate us
+                                authStatus = reader.MFRC522_Auth(reader.PICC_AUTHENT1A, 8, rfidKey, uid)
+                                if authStatus == reader.MI_OK:
+                                    print('successfully authenticated to card, beginning write');
+                                    # Now we must write the student id for the card
+                                    writeStatus = reader.MFRC522_Write(1, studentId.to_bytes(4, byteorder='big'))
 
-
-                            # Select the scanned tag
-                            MIFAREReader.MFRC522_SelectTag(uid)
-                            # Authenticate us
-                            authStatus = reader.MFRC522_Auth(reader.PICC_AUTHENT1A, 8, rfidKey, uid)
-                            if authStatus == reader.MI_OK:
-                                print('successfully authenticated to card, beginning write');
-                                # Now we must write the student id for the card
-                                reader.MFRC522_Write(1, uid.to_bytes(4, byteorder='big'))
-                                reader.MFRC522_StopCrypto1()
-                            else:
-                                print('failed to authenticate to card! (still usable though)')
-                            time.sleep(0.5)
+                                    if writeStatus == reader.MI_OK:
+                                        print('Write successful')
+                                    else:
+                                        print('Write unscucessful')
+                                    reader.MFRC522_StopCrypto1()
+                                else:
+                                    print('failed to authenticate to card! (still usable though)')
+                                time.sleep(0.5)
+                                break;
                 except ValueError:
                     print('Not a valid student id. Failed to associate id')
         except KeyboardInterrupt:
-            RPi.GPIO.cleanup()
+            GPIO.cleanup()

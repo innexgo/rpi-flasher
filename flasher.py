@@ -4,6 +4,7 @@ import os
 import sys
 import time
 import json
+import getpass
 import datetime
 import requests
 import readline
@@ -77,7 +78,7 @@ def setInterval(func, sec):
     t.start()
     return t
 
-# Attempts to associate card
+# Attempts to associate card, returns card if succeeded, error if failed
 def associateCard(cardId, studentId):
         try:
             # There's not a class at the moment
@@ -88,11 +89,42 @@ def associateCard(cardId, studentId):
             if newCardRequest.ok:
                 print('Successfully associated card!')
                 card = newCardRequest.json()
+                return card
             else:
-                print(f'attempt failed: {newCardRequest.status_code}')
-                print(newCardRequest.content)
+                # Throw error
+                newCardRequest.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            print(err)
         except requests.exceptions.RequestException:
             print(f'Failed to connect to {protocol}://{hostname}')
+
+# Attempts to get key, returns key if succeeeded, error if failed
+def getKey():
+    while True:
+        print(f'Please enter email to login into {hostname}:')
+        email = input()
+        print(f'Please enter password to login into {hostname}:')
+        password = getpass.getpass()
+        try:
+            getApiKeyRequest = requests.get(f'{protocol}://{hostname}/apiKey/new/',
+                                        params={'email':email,
+                                                'password':password,
+                                                'expirationTime':currentMillis()+30*60*1000})
+            if getApiKeyRequest.ok:
+                print('Successfully logged in!')
+                return getApiKeyRequest.json()['key']
+            else:
+                # Throw error
+                newCardRequest.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            print(err)
+        except:
+            print(f'Failed to connect to {protocol}://{hostname}')
+            sys.exit(1)
+
+
+
+
 
 # Load the config file
 with open('innexgo-flasher.json') as configfile:
@@ -100,11 +132,12 @@ with open('innexgo-flasher.json') as configfile:
 
     hostname = config['hostname']
     protocol = config['protocol']
-    apiKey = config['apiKey']
 
-    if hostname is None or protocol is None or apiKey is None:
+    if hostname is None or protocol is None:
         print('error reading the json')
         sys.exit()
+
+    apiKey = getKey()
 
     if isPi():
         try:
@@ -125,7 +158,7 @@ with open('innexgo-flasher.json') as configfile:
                                 cardId = int(bytes(uid).hex(), 16)
                                 print(f'detected card with id {cardId}')
                                 associateCard(cardId, studentId)
-    
+
                                 # Select the scanned tag
                                 reader.MFRC522_SelectTag(uid)
                                 # Authenticate us

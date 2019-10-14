@@ -127,7 +127,7 @@ def getKey():
 
 
 # Load the config file
-with open('innexgo-flasher.json') as configfile:
+with open('/boot/innexgo-flasher.json') as configfile:
     config = json.load(configfile)
 
     hostname = config['hostname']

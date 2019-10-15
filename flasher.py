@@ -89,10 +89,8 @@ def associateCard(cardId, studentId):
                 card = newCardRequest.json()
                 return card
             else:
-                # Throw error
-                newCardRequest.raise_for_status()
-        except requests.exceptions.HTTPError as err:
-            print(err)
+                print(f'Could not associate card: HTTP Error {newCardRequest.status_code}')
+                return None
         except requests.exceptions.RequestException:
             print(f'Failed to connect to {protocol}://{hostname}')
 
@@ -112,10 +110,7 @@ def getKey():
                 print('Successfully logged in!')
                 return getApiKeyRequest.json()['key']
             else:
-                # Throw error
-                newCardRequest.raise_for_status()
-        except requests.exceptions.HTTPError as err:
-            print(err)
+                print(f'Could not associate card: HTTP Error {getApiKeyRequest.status_code}')
         except:
             print(f'Failed to connect to {protocol}://{hostname}')
             sys.exit(1)
@@ -125,7 +120,7 @@ def getKey():
 
 
 # Load the config file
-with open('innexgo-flasher.json') as configfile:
+with open('/boot/innexgo-flasher.json') as configfile:
     config = json.load(configfile)
 
     hostname = config['hostname']

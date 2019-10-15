@@ -20,8 +20,6 @@ if isPi():
 else:
     print('not a pi lmao')
 
-# This is the default key for authentication
-rfidKey = [0xFF,0xFF,0xFF,0xFF,0xFF,0xFF]
 
 apiKey = None
 protocol = None
@@ -158,23 +156,6 @@ with open('innexgo-flasher.json') as configfile:
                                 cardId = int(bytes(uid).hex(), 16)
                                 print(f'detected card with id {cardId}')
                                 associateCard(cardId, studentId)
-
-                                # Select the scanned tag
-                                reader.MFRC522_SelectTag(uid)
-                                # Authenticate us
-                                authStatus = reader.MFRC522_Auth(reader.PICC_AUTHENT1A, 8, rfidKey, uid)
-                                if authStatus == reader.MI_OK:
-                                    print('successfully authenticated to card, beginning write');
-                                    # Now we must write the student id for the card
-                                    writeStatus = reader.MFRC522_Write(1, studentId.to_bytes(4, byteorder='big'))
-
-                                    if writeStatus == reader.MI_OK:
-                                        print('Write successful')
-                                    else:
-                                        print('Write unscucessful')
-                                    reader.MFRC522_StopCrypto1()
-                                else:
-                                    print('failed to authenticate to card! (still usable though)')
                                 time.sleep(0.5)
                                 break;
                 except ValueError:

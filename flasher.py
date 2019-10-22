@@ -80,7 +80,7 @@ def setInterval(func, sec):
 def associateCard(cardId, studentId):
         try:
             # There's not a class at the moment
-            newCardRequest = requests.get(f'{protocol}://{hostname}/card/new/',
+            newCardRequest = requests.get(f'{protocol}://{hostname}/api/card/new/',
                                 params={'apiKey':apiKey,
                                         'studentId':studentId,
                                         'cardId':cardId})
@@ -102,7 +102,7 @@ def getKey():
         print(f'Please enter password to login into {hostname}:')
         password = getpass.getpass()
         try:
-            getApiKeyRequest = requests.get(f'{protocol}://{hostname}/apiKey/new/',
+            getApiKeyRequest = requests.get(f'{protocol}://{hostname}/api/apiKey/new/',
                                         params={'email':email,
                                                 'password':password,
                                                 'expirationTime':currentMillis()+30*60*1000})

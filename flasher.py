@@ -20,13 +20,12 @@ if isPi():
 else:
     print('not a pi lmao')
 
-
 apiKey = None
 protocol = None
 hostname = None
-readerAuthKey = None
 
-sector = 1
+sector = 8
+readerAuthKey = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
 
 def beep(hertz, duration):
 
@@ -70,15 +69,6 @@ def currentMillis():
 def printMillis(millis):
     print(datetime.datetime.fromtimestamp(millis/1000.0))
 
-# setInterval for python
-def setInterval(func, sec):
-    def func_wrapper():
-        setInterval(func, sec)
-        func()
-    t = threading.Timer(sec, func_wrapper)
-    t.start()
-    return t
-
 # Attempts to associate card, returns card if succeeded, error if failed
 def associateCard(cardId, studentId):
         try:
@@ -121,52 +111,37 @@ def getKey():
 
 
 
-# Load the config file
-with open('/boot/innexgo-flasher.json') as configfile:
-    config = json.load(configfile)
-
-    hostname = config['hostname']
-    protocol = config['protocol']
-    readerAuthKey = config['readerAuthKey']
-
-
-    if hostname is None or protocol is None or readerAuthKey is None:
-        print('error reading the json')
-        sys.exit()
-
-    apiKey = getKey()
-
-    if isPi():
-        try:
-            reader = mfrc522.MFRC522()
-            while True:
-                try:
-                    # First grab student id
-                    print('\n\n=============== BEGIN CARD FLASHING PROCESS ===============')
-                    print('Please enter student ID...')
-                    studentId = int(input())
-                    print('\nPlease touch card...')
-                    while True:
-                        (detectstatus, tagtype) = reader.MFRC522_Request(reader.PICC_REQIDL)
-                        if detectstatus == reader.MI_OK:
-                            (uidstatus, uid) = reader.MFRC522_Anticoll()
-                            if uidstatus == reader.MI_OK:
-                                reader.MFRC522_SelectTag(uid)
-                                authStatus = reader.MFRC522_Auth(reader.PICC_AUTHENT1A,
-                                                                8, readerAuthKey, uid)
-                                # Check if authenticated
-                                if authStatus == reader.MI_OK:
-                                # Convert uid to int
-                                    oldData = reader.MFRC522_Read(sector)
-                                    print(f'Current Sector {sector} data: {str(oldData)}')
-                                    newData = studentId.to_bytes(4, byteorder='little')
-                                    reader.MFRC522_Write(sector, newData)
-                                    reader.MFRC522_StopCrypto1()
-                                    break
-                                else:
-                                    print('Authentication error')
+if isPi():
+    try:
+        reader = mfrc522.MFRC522()
+        while True:
+            try:
+                # First grab student id
+                print('\n\n=============== BEGIN CARD FLASHING PROCESS ===============')
+                print('Please enter student ID...')
+                studentId = int(input())
+                print('\nPlease touch card...')
+                while True:
+                    (detectstatus, tagtype) = reader.MFRC522_Request(reader.PICC_REQIDL)
+                    if detectstatus == reader.MI_OK:
+                        (uidstatus, uid) = reader.MFRC522_Anticoll()
+                        if uidstatus == reader.MI_OK:
+                            reader.MFRC522_SelectTag(uid)
+                            authStatus = reader.MFRC522_Auth(reader.PICC_AUTHENT1A,
+                                                            8, readerAuthKey, uid)
+                            # Check if authenticated
+                            if authStatus == reader.MI_OK:
+                            # Convert uid to int
+                                oldData = reader.MFRC522_Read(sector)
+                                print(f'Current Sector {sector} data: {str(oldData)}')
+                                newData = studentId.to_bytes(4, byteorder='little')
+                                reader.MFRC522_Write(sector, newData)
+                                reader.MFRC522_StopCrypto1()
+                                break
+                            else:
+                                print('Authentication error')
                             time.sleep(0.1)
-                except ValueError:
-                    print('Not a valid student id. Failed to associate id')
-        except KeyboardInterrupt:
-            GPIO.cleanup()
+            except ValueError:
+                print('Not a valid student id. Failed to associate id')
+    except KeyboardInterrupt:
+        GPIO.cleanup()

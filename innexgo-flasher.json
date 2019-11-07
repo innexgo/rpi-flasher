@@ -1,4 +1,5 @@
 {
   "hostname":"innexgo.com",
-  "protocol":"http"
+  "protocol":"http",
+  "readerAuthKey":[255,255,255,255,255,255]
 }

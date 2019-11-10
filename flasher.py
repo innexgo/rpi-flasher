@@ -126,20 +126,20 @@ if isPi():
                     if detectstatus == reader.MI_OK:
                         (uidstatus, uid) = reader.MFRC522_Anticoll()
                         if uidstatus == reader.MI_OK:
-                            reader.MFRC522_SelectTag(uid)
+                            #reader.MFRC522_SelectTag(uid)
                             print(f'{reader.MFRC522_Request(reader.PICC_AUTHENT1A)}')
                             # Check if authenticated
-                            if uidstatus == reader.MI_OK:
-                            # Convert uid to int
-                                oldData = reader.MFRC522_Read(sector)
-                                print(f'Current Sector {sector} data: {str(oldData)}')
-                                newData = studentId.to_bytes(4, byteorder='little')
-                                reader.MFRC522_Write(sector, newData)
-                                reader.MFRC522_StopCrypto1()
-                                break
-                            else:
-                                print('Authentication error')
-                            time.sleep(0.1)
+                            # if uidstatus == reader.MI_OK:
+                            # # Convert uid to int
+                            #     oldData = reader.MFRC522_Read(sector)
+                            #     print(f'Current Sector {sector} data: {str(oldData)}')
+                            #     newData = studentId.to_bytes(4, byteorder='little')
+                            #     reader.MFRC522_Write(sector, newData)
+                            #     reader.MFRC522_StopCrypto1()
+                            break
+                            # else:
+                            #     print('Authentication error')
+                            # time.sleep(0.1)
             except ValueError:
                 print('Not a valid student id. Failed to associate id')
     except KeyboardInterrupt:

@@ -127,7 +127,7 @@ if isPi():
                         (uidstatus, uid) = reader.MFRC522_Anticoll()
                         if uidstatus == reader.MI_OK:
                             reader.MFRC522_SelectTag(uid)
-                            print(f'{reader.MFRC522_ToCard(0x60, [0x00])}')
+                            print(f'{reader.MFRC522_Request(reader.PICC_REQIDL)}')
                             # Check if authenticated
                             if uidstatus == reader.MI_OK:
                             # Convert uid to int

@@ -127,10 +127,9 @@ if isPi():
                         (uidstatus, uid) = reader.MFRC522_Anticoll()
                         if uidstatus == reader.MI_OK:
                             reader.MFRC522_SelectTag(uid)
-                            authStatus = reader.MFRC522_Auth(reader.PICC_AUTHENT1A,
-                                                            8, readerAuthKey, uid)
+                            print(f'{reader.MFRC522_ToCard(0x60, 0x00)}')
                             # Check if authenticated
-                            if authStatus == reader.MI_OK:
+                            if uidstatus == reader.MI_OK:
                             # Convert uid to int
                                 oldData = reader.MFRC522_Read(sector)
                                 print(f'Current Sector {sector} data: {str(oldData)}')

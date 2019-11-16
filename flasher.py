@@ -68,48 +68,6 @@ def currentMillis():
 def printMillis(millis):
     print(datetime.datetime.fromtimestamp(millis/1000.0))
 
-# Attempts to associate card, returns card if succeeded, error if failed
-def associateCard(cardId, studentId):
-        try:
-            # There's not a class at the moment
-            newCardRequest = requests.get(f'{protocol}://{hostname}/api/card/new/',
-                                params={'apiKey':apiKey,
-                                        'studentId':studentId,
-                                        'cardId':cardId})
-            if newCardRequest.ok:
-                print('Successfully associated card!')
-                card = newCardRequest.json()
-                return card
-            else:
-                print(f'Could not associate card: HTTP Error {newCardRequest.status_code}')
-                return None
-        except requests.exceptions.RequestException:
-            print(f'Failed to connect to {protocol}://{hostname}')
-
-# Attempts to get key, returns key if succeeeded, error if failed
-def getKey():
-    while True:
-        print(f'Please enter email to login into {hostname}:')
-        email = input()
-        print(f'Please enter password to login into {hostname}:')
-        password = getpass.getpass()
-        try:
-            getApiKeyRequest = requests.get(f'{protocol}://{hostname}/api/apiKey/new/',
-                                        params={'email':email,
-                                                'password':password,
-                                                'expirationTime':currentMillis()+30*60*1000})
-            if getApiKeyRequest.ok:
-                print('Successfully logged in!')
-                return getApiKeyRequest.json()['key']
-            else:
-                print(f'Could not associate card: HTTP Error {getApiKeyRequest.status_code}')
-        except:
-            print(f'Failed to connect to {protocol}://{hostname}')
-            sys.exit(1)
-
-
-
-
 if isPi():
     try:
         reader = mfrc522.MFRC522()
@@ -125,9 +83,16 @@ if isPi():
                     if detectstatus == reader.MI_OK:
                         (uidstatus, uid) = reader.MFRC522_Anticoll()
                         if uidstatus == reader.MI_OK:
+                            # Select this tag
                             reader.MFRC522_SelectTag(uid)
+                            # Get data and write it to the card
                             newData = list(studentId.to_bytes(4, byteorder='little'))
-                            reader.MFRC522_WriteUltralight(sector, newData)
+                            writeStatus = reader.MFRC522_WriteUltralight(sector, newData)
+                            if writeStatus = reader.MI_OK:
+                                print('Write Succeeeded!')
+                            else 
+                                print('Write Failed!')
+
                             time.sleep(0.1)
                             break
             except ValueError:

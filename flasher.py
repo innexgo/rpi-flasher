@@ -24,7 +24,7 @@ apiKey = None
 protocol = None
 hostname = None
 
-sector = 8
+sector = 10
 readerAuthKey = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
 
 def beep(hertz, duration):
@@ -127,20 +127,12 @@ if isPi():
                         (uidstatus, uid) = reader.MFRC522_Anticoll()
                         if uidstatus == reader.MI_OK:
                             reader.MFRC522_SelectTag(uid)
-                            authStatus = reader.MFRC522_Auth(reader.PICC_AUTHENT1A,
-                                                            8, readerAuthKey, uid)
-                            # Check if authenticated
-                            if authStatus == reader.MI_OK:
-                            # Convert uid to int
-                                oldData = reader.MFRC522_Read(sector)
-                                print(f'Current Sector {sector} data: {str(oldData)}')
-                                newData = studentId.to_bytes(4, byteorder='little')
-                                reader.MFRC522_Write(sector, newData)
-                                reader.MFRC522_StopCrypto1()
-                                break
-                            else:
-                                print('Authentication error')
+                            oldData = reader.MFRC522_Read(sector)
+                            print(f'Current Sector {sector} data: {str(oldData)}')
+#                            newData = list(studentId.to_bytes(4, byteorder='little'))
+#                            reader.MFRC522_WriteUltralight(sector, newData)
                             time.sleep(0.1)
+                            break
             except ValueError:
                 print('Not a valid student id. Failed to associate id')
     except KeyboardInterrupt:

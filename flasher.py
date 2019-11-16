@@ -25,7 +25,6 @@ protocol = None
 hostname = None
 
 sector = 10
-readerAuthKey = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
 
 def beep(hertz, duration):
 
@@ -127,10 +126,8 @@ if isPi():
                         (uidstatus, uid) = reader.MFRC522_Anticoll()
                         if uidstatus == reader.MI_OK:
                             reader.MFRC522_SelectTag(uid)
-                            oldData = reader.MFRC522_Read(sector)
-                            print(f'Current Sector {sector} data: {str(oldData)}')
-#                            newData = list(studentId.to_bytes(4, byteorder='little'))
-#                            reader.MFRC522_WriteUltralight(sector, newData)
+                            newData = list(studentId.to_bytes(4, byteorder='little'))
+                            reader.MFRC522_WriteUltralight(sector, newData)
                             time.sleep(0.1)
                             break
             except ValueError:

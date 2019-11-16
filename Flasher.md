@@ -7,7 +7,7 @@
 
 
 
-### SSH Into the RasPi
+### SSH Into the Raspberry Pi
 
 1. Open up your preferred terminal application
 
@@ -54,7 +54,9 @@
 2. Update the code to the most current version: `git pull`
 3. Start the client: `python3 flasher.py`
 
+### Logging into the Raspberry Pi
 
+1. On startup of flasher.py, you'll be prompted for a password.
 
 ### Flashing Stickers to ID
 

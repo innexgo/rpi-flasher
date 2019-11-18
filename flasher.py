@@ -16,7 +16,7 @@ def isPi():
 # if raspberry pi
 if isPi():
     import RPi.GPIO as GPIO
-    import mfrc522
+    import altered_mfrc522
 else:
     print('not a pi lmao')
 
@@ -70,7 +70,7 @@ def printMillis(millis):
 
 if isPi():
     try:
-        reader = mfrc522.MFRC522()
+        reader = altered_mfrc522.MFRC522()
         while True:
             try:
                 # First grab student id
@@ -88,9 +88,9 @@ if isPi():
                             # Get data and write it to the card
                             newData = list(studentId.to_bytes(4, byteorder='little'))
                             writeStatus = reader.MFRC522_WriteUltralight(sector, newData)
-                            if writeStatus = reader.MI_OK:
+                            if writeStatus == reader.MI_OK:
                                 print('Write Succeeeded!')
-                            else 
+                            else:
                                 print('Write Failed!')
 
                             time.sleep(0.1)

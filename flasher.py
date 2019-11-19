@@ -85,13 +85,18 @@ if isPi():
                         if uidstatus == reader.MI_OK:
                             # Select this tag
                             reader.MFRC522_SelectTag(uid)
+                            
+                            # Print current data on card
+                            print(f'Writing to sector {sector}')
+                            print(f'Current: {reader.MFRC522_Read(sector)}')
+
                             # Get data and write it to the card
-                            newData = list(studentId.to_bytes(4, byteorder='little'))
-                            writeStatus = reader.MFRC522_WriteUltralight(sector, newData)
-                            if writeStatus == reader.MI_OK:
-                                print('Write Succeeeded!')
-                            else:
-                                print('Write Failed!')
+                            writeStatus = reader.MFRC522_WriteUltralight(sector, 
+                                    list(studentId.to_bytes(4, byteorder='little')))
+
+                            # Print current data on card
+                            print(f'After write: {reader.MFRC522_Read(sector)}')
+                            print('(These should be different)')
 
                             time.sleep(0.1)
                             break
